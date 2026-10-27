@@ -31,19 +31,8 @@ class $BaggageEventsTable extends BaggageEvents
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
       'created_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _pendingSyncMeta =
-      const VerificationMeta('pendingSync');
   @override
-  late final GeneratedColumn<bool> pendingSync = GeneratedColumn<bool>(
-      'pending_sync', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("pending_sync" IN (0, 1))'),
-      defaultValue: const Constant(true));
-  @override
-  List<GeneratedColumn> get $columns =>
-      [id, baggageId, type, createdAt, pendingSync];
+  List<GeneratedColumn> get $columns => [id, baggageId, type, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -77,12 +66,6 @@ class $BaggageEventsTable extends BaggageEvents
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
-    if (data.containsKey('pending_sync')) {
-      context.handle(
-          _pendingSyncMeta,
-          pendingSync.isAcceptableOrUnknown(
-              data['pending_sync']!, _pendingSyncMeta));
-    }
     return context;
   }
 
@@ -100,8 +83,6 @@ class $BaggageEventsTable extends BaggageEvents
           .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
-      pendingSync: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}pending_sync'])!,
     );
   }
 
@@ -116,13 +97,11 @@ class BaggageEventRow extends DataClass implements Insertable<BaggageEventRow> {
   final String baggageId;
   final String type;
   final DateTime createdAt;
-  final bool pendingSync;
   const BaggageEventRow(
       {required this.id,
       required this.baggageId,
       required this.type,
-      required this.createdAt,
-      required this.pendingSync});
+      required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -130,7 +109,6 @@ class BaggageEventRow extends DataClass implements Insertable<BaggageEventRow> {
     map['baggage_id'] = Variable<String>(baggageId);
     map['type'] = Variable<String>(type);
     map['created_at'] = Variable<DateTime>(createdAt);
-    map['pending_sync'] = Variable<bool>(pendingSync);
     return map;
   }
 
@@ -140,7 +118,6 @@ class BaggageEventRow extends DataClass implements Insertable<BaggageEventRow> {
       baggageId: Value(baggageId),
       type: Value(type),
       createdAt: Value(createdAt),
-      pendingSync: Value(pendingSync),
     );
   }
 
@@ -152,7 +129,6 @@ class BaggageEventRow extends DataClass implements Insertable<BaggageEventRow> {
       baggageId: serializer.fromJson<String>(json['baggageId']),
       type: serializer.fromJson<String>(json['type']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      pendingSync: serializer.fromJson<bool>(json['pendingSync']),
     );
   }
   @override
@@ -163,22 +139,16 @@ class BaggageEventRow extends DataClass implements Insertable<BaggageEventRow> {
       'baggageId': serializer.toJson<String>(baggageId),
       'type': serializer.toJson<String>(type),
       'createdAt': serializer.toJson<DateTime>(createdAt),
-      'pendingSync': serializer.toJson<bool>(pendingSync),
     };
   }
 
   BaggageEventRow copyWith(
-          {String? id,
-          String? baggageId,
-          String? type,
-          DateTime? createdAt,
-          bool? pendingSync}) =>
+          {String? id, String? baggageId, String? type, DateTime? createdAt}) =>
       BaggageEventRow(
         id: id ?? this.id,
         baggageId: baggageId ?? this.baggageId,
         type: type ?? this.type,
         createdAt: createdAt ?? this.createdAt,
-        pendingSync: pendingSync ?? this.pendingSync,
       );
   BaggageEventRow copyWithCompanion(BaggageEventsCompanion data) {
     return BaggageEventRow(
@@ -186,8 +156,6 @@ class BaggageEventRow extends DataClass implements Insertable<BaggageEventRow> {
       baggageId: data.baggageId.present ? data.baggageId.value : this.baggageId,
       type: data.type.present ? data.type.value : this.type,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      pendingSync:
-          data.pendingSync.present ? data.pendingSync.value : this.pendingSync,
     );
   }
 
@@ -197,14 +165,13 @@ class BaggageEventRow extends DataClass implements Insertable<BaggageEventRow> {
           ..write('id: $id, ')
           ..write('baggageId: $baggageId, ')
           ..write('type: $type, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('pendingSync: $pendingSync')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, baggageId, type, createdAt, pendingSync);
+  int get hashCode => Object.hash(id, baggageId, type, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -212,8 +179,7 @@ class BaggageEventRow extends DataClass implements Insertable<BaggageEventRow> {
           other.id == this.id &&
           other.baggageId == this.baggageId &&
           other.type == this.type &&
-          other.createdAt == this.createdAt &&
-          other.pendingSync == this.pendingSync);
+          other.createdAt == this.createdAt);
 }
 
 class BaggageEventsCompanion extends UpdateCompanion<BaggageEventRow> {
@@ -221,14 +187,12 @@ class BaggageEventsCompanion extends UpdateCompanion<BaggageEventRow> {
   final Value<String> baggageId;
   final Value<String> type;
   final Value<DateTime> createdAt;
-  final Value<bool> pendingSync;
   final Value<int> rowid;
   const BaggageEventsCompanion({
     this.id = const Value.absent(),
     this.baggageId = const Value.absent(),
     this.type = const Value.absent(),
     this.createdAt = const Value.absent(),
-    this.pendingSync = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   BaggageEventsCompanion.insert({
@@ -236,7 +200,6 @@ class BaggageEventsCompanion extends UpdateCompanion<BaggageEventRow> {
     required String baggageId,
     required String type,
     required DateTime createdAt,
-    this.pendingSync = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         baggageId = Value(baggageId),
@@ -247,7 +210,6 @@ class BaggageEventsCompanion extends UpdateCompanion<BaggageEventRow> {
     Expression<String>? baggageId,
     Expression<String>? type,
     Expression<DateTime>? createdAt,
-    Expression<bool>? pendingSync,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -255,7 +217,6 @@ class BaggageEventsCompanion extends UpdateCompanion<BaggageEventRow> {
       if (baggageId != null) 'baggage_id': baggageId,
       if (type != null) 'type': type,
       if (createdAt != null) 'created_at': createdAt,
-      if (pendingSync != null) 'pending_sync': pendingSync,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -265,14 +226,12 @@ class BaggageEventsCompanion extends UpdateCompanion<BaggageEventRow> {
       Value<String>? baggageId,
       Value<String>? type,
       Value<DateTime>? createdAt,
-      Value<bool>? pendingSync,
       Value<int>? rowid}) {
     return BaggageEventsCompanion(
       id: id ?? this.id,
       baggageId: baggageId ?? this.baggageId,
       type: type ?? this.type,
       createdAt: createdAt ?? this.createdAt,
-      pendingSync: pendingSync ?? this.pendingSync,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -292,9 +251,6 @@ class BaggageEventsCompanion extends UpdateCompanion<BaggageEventRow> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
-    if (pendingSync.present) {
-      map['pending_sync'] = Variable<bool>(pendingSync.value);
-    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -308,7 +264,6 @@ class BaggageEventsCompanion extends UpdateCompanion<BaggageEventRow> {
           ..write('baggageId: $baggageId, ')
           ..write('type: $type, ')
           ..write('createdAt: $createdAt, ')
-          ..write('pendingSync: $pendingSync, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -332,7 +287,6 @@ typedef $$BaggageEventsTableCreateCompanionBuilder = BaggageEventsCompanion
   required String baggageId,
   required String type,
   required DateTime createdAt,
-  Value<bool> pendingSync,
   Value<int> rowid,
 });
 typedef $$BaggageEventsTableUpdateCompanionBuilder = BaggageEventsCompanion
@@ -341,7 +295,6 @@ typedef $$BaggageEventsTableUpdateCompanionBuilder = BaggageEventsCompanion
   Value<String> baggageId,
   Value<String> type,
   Value<DateTime> createdAt,
-  Value<bool> pendingSync,
   Value<int> rowid,
 });
 
@@ -365,9 +318,6 @@ class $$BaggageEventsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get pendingSync => $composableBuilder(
-      column: $table.pendingSync, builder: (column) => ColumnFilters(column));
 }
 
 class $$BaggageEventsTableOrderingComposer
@@ -390,9 +340,6 @@ class $$BaggageEventsTableOrderingComposer
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get pendingSync => $composableBuilder(
-      column: $table.pendingSync, builder: (column) => ColumnOrderings(column));
 }
 
 class $$BaggageEventsTableAnnotationComposer
@@ -415,9 +362,6 @@ class $$BaggageEventsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<bool> get pendingSync => $composableBuilder(
-      column: $table.pendingSync, builder: (column) => column);
 }
 
 class $$BaggageEventsTableTableManager extends RootTableManager<
@@ -450,7 +394,6 @@ class $$BaggageEventsTableTableManager extends RootTableManager<
             Value<String> baggageId = const Value.absent(),
             Value<String> type = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
-            Value<bool> pendingSync = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               BaggageEventsCompanion(
@@ -458,7 +401,6 @@ class $$BaggageEventsTableTableManager extends RootTableManager<
             baggageId: baggageId,
             type: type,
             createdAt: createdAt,
-            pendingSync: pendingSync,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -466,7 +408,6 @@ class $$BaggageEventsTableTableManager extends RootTableManager<
             required String baggageId,
             required String type,
             required DateTime createdAt,
-            Value<bool> pendingSync = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               BaggageEventsCompanion.insert(
@@ -474,7 +415,6 @@ class $$BaggageEventsTableTableManager extends RootTableManager<
             baggageId: baggageId,
             type: type,
             createdAt: createdAt,
-            pendingSync: pendingSync,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
