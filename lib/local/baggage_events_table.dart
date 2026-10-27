@@ -7,8 +7,6 @@ class BaggageEvents extends Table {
   TextColumn get type => text()();
   DateTimeColumn get createdAt => dateTime()();
 
-  BoolColumn get pendingSync => boolean().withDefault(const Constant(true))();
-
   @override
-  Set<Column> get primaryKey => {baggageId};
+  Set<Column> get primaryKey => {id};
 }

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
 import '../models/baggage.dart';
+import '../models/baggage_status.dart';
+import 'status_chip.dart';
 
 class BaggageCard extends StatelessWidget {
   const BaggageCard({
     super.key,
     required this.baggage,
+    required this.status,
     required this.onTap,
   });
 
   final Baggage baggage;
+  final BaggageStatus status;
   final VoidCallback onTap;
 
   @override
@@ -55,7 +59,7 @@ class BaggageCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const _InitialStatusChip(),
+                  StatusChip(status: status),
                   const SizedBox(height: 10),
                   Icon(
                     Icons.chevron_right,
@@ -66,29 +70,6 @@ class BaggageCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _InitialStatusChip extends StatelessWidget {
-  const _InitialStatusChip();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.circle, size: 8),
-          SizedBox(width: 6),
-          Text('Sin eventos'),
-        ],
       ),
     );
   }

@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:drift/drift.dart';
-import 'package:baggage_track_shell/local/baggage_events_table.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+
+import '../local/baggage_events_table.dart';
+
 part 'app_database.g.dart';
 
 /// Punto de inicio para la persistencia local del examen.
@@ -18,7 +20,17 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.deleteTable(baggageEvents.actualTableName);
+            await m.createTable(baggageEvents);
+          }
+        },
+      );
 }
 
 LazyDatabase _openConnection() {
